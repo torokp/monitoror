@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/monitoror/monitoror/cli/version"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	"github.com/monitoror/monitoror/monitorables/http/api/models"
 	"github.com/monitoror/monitoror/monitorables/http/config"
@@ -27,7 +28,16 @@ func NewHTTPRepository(config *config.HTTP) api.Repository {
 }
 
 func (r *httpRepository) Get(url string) (response *models.Response, err error) {
-	resp, err := r.httpClient.Get(url)
+	req, reqerr := http.NewRequest("GET", url, nil)
+	if reqerr != nil {
+		return
+	}
+
+	req.Header.Set("User-Agent", "monitoror/"+version.Version)
+
+	// resp, err := r.httpClient.Get(url)
+	resp, err := r.httpClient.Do(req)
+
 	if err != nil {
 		return
 	}
